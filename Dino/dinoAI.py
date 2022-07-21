@@ -4,6 +4,7 @@ import numpy as np
 import os
 import random
 import time
+import math
 from sys import exit
 
 pygame.init()
@@ -237,6 +238,12 @@ class KeySimplestClassifier(KeyClassifier):
     def updateState(self, state):
         self.state = state
 
+
+# ------------------------------------------------------------------------------------------------------- #
+# Neural Network Classifier
+# ------------------------------------------------------------------------------------------------------- #
+
+# Internal Neuron
 class InterNeuron():
     def __init__(self, weights):
         self.distWeight = weights[0]
@@ -251,6 +258,7 @@ class InterNeuron():
         else:
             return 0
 
+# External Neuron - Neuron that decides
 class DecisionNeuron():
     def __init__(self, weights):
         self.weight0 = weights[0]
@@ -265,7 +273,8 @@ class DecisionNeuron():
         else:
             return 0
 
-class NeuralDino(KeyClassifier):
+# Class of Classification
+class NeuralDinoClassifier(KeyClassifier):
     def __init__(self, state):
         self.state = state
         self.interNeurons = []
@@ -273,34 +282,34 @@ class NeuralDino(KeyClassifier):
 
     def keySelector(self, distance, obHeight, speed):
         for i in range(3):
-            self.interNeurons[i] = InterNeuron(self.state[i])
+            self.interNeurons.append(InterNeuron(self.state[i]))
         for i in range(2):
-            self.decisionNeuron[i+3] = DecisionNeuron(self.state[i+3])
+            self.decisionNeuron.append(DecisionNeuron(self.state[i+3]))
 
         sumNeurons = []
         for i in range(3):
-            sumNeurons[i] = self.interNeurons[i].decision(distance, obHeight, speed)
+            sumNeurons.append(self.interNeurons[i].decision(distance, obHeight, speed))
         
         decision = []
         for i in range(2):
-            decision = self.decisionNeuron[i].decision(sumNeurons)
+            decision.append(self.decisionNeuron[i].decision(sumNeurons))
 
-        if decision[0] > 0 and decision[1] == 0:
+        if decision[0] > decision[1]:
             return "K_UP"
-        elif decision[0] == 0 and decision[1] > 0:
+        elif decision[0] < decision[1]:
             return "K_DOWN"
-        elif decision[0] > 0 and decision[1] > 0:
-            if decision[0] > decision[1]:
-                return "K_UP"
-            elif decision[0] < decision[1]:
-                return "K_DOWN"
-            else:
-                return "K_NO"
         else:
             return "K_NO"
         
     def updateState(self, state):
         self.state = state
+
+# ------------------------------------------------------------------------------------------------------- #
+# Genetic Algorithm
+# ------------------------------------------------------------------------------------------------------- #
+
+
+# ------------------------------------------------------------------------------------------------------- #
 
 def playerKeySelector():
     userInputArray = pygame.key.get_pressed()
@@ -450,12 +459,12 @@ def gradient_ascent(state, max_time):
     better = True
     end = 0
     while better and end - start <= max_time:
-        neighborhood = generate_neighborhood(state)         
+        neighborhood = generate_neighborhood(state)
         better = False
         global aiPlayers
         aiPlayers = []
         for s in neighborhood:            
-            aiPlayers.append(KeySimplestClassifier(s))        
+            aiPlayers.append(NeuralDinoClassifier(s))        
         # print(aiPlayers)        
         value, index = manyPlaysResults(3)
         if value > max_value:
@@ -470,7 +479,7 @@ def gradient_ascent(state, max_time):
 
 def manyPlaysResults(rounds):
     results = []
-    for round in range(rounds):        
+    for round in range(rounds):
         results += [playGame()]
     scores = []
     for i, result in enumerate(results):
@@ -478,23 +487,30 @@ def manyPlaysResults(rounds):
             if i == 0:
                 scores.append([val[0]])
             else:
-                scores[j].append(val[0])    
+                scores[j].append(val[0])
     npResults = np.asarray(results)
-    scores = np.asarray(scores)    
-    scores = [x.mean() - x.std() for x in scores]    
+    scores = np.asarray(scores)
+    scores = [x.mean() - x.std() for x in scores]
     return (max(scores), scores.index(max(scores)))
 
+def creatInitial_state(x, y):
+                    # State of Internal Neurons
+    initial_state = [[rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
+                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
+                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
+                    # State of Decision Neurons
+                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
+                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],]
+    return initial_state
 
 def main():
     global aiPlayers
     aiPlayers = []
     # initial_state = [(15, 250), (18, 350), (20, 450), (1000, 550)]
-    initial_state = [[15,250,50,0],
-                    [18,350,20,0],
-                    [20,450,50,0],
-                    [100,550,10,0]]
-    aiPlayers.append(KeySimplestClassifier(initial_state))
-    best_state, best_value = gradient_ascent(initial_state, 5000)
+    for _ in range(10):
+        initial_state = creatInitial_state(-1000,1000)
+        aiPlayers.append(NeuralDinoClassifier(initial_state))
+    best_state, best_value = manyPlaysResults(3)
     print("Best state: " + str(best_state))
     print("Best value: " + str(best_value))
     aiPlayers = []
