@@ -303,7 +303,7 @@ def playGame(s):
             userInput = playerKeySelector()
         else:
             aiPlayer = NeuralDinoClassifier(s, n_internalNeurons, n_decisionNeurons)
-            userInput = aiPlayer.keySelector(game_speed, distance, obHeight)
+            userInput = aiPlayer.keySelector(distance, obHeight, game_speed, obType)
 
         if len(obstacles) == 0 or obstacles[-1].getXY()[0] < spawn_dist:
             spawn_dist = random.randint(0, 670)
