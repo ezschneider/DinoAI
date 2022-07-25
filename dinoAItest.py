@@ -3,7 +3,7 @@ import os
 import random
 import time
 from sys import exit
-from sklearn.neighbors import KNeighborsClassifier
+import math
 
 pygame.init()
 
@@ -217,21 +217,21 @@ def first(x):
     return x[0]
 
 
-class KNNClassifier(KeyClassifier):
-	def __init__(self, data, state):
-		self.classifier = KNeighborsClassifier(n_neighbors=5)
-		self.classifier.fit(data, state)
+# class KNNClassifier(KeyClassifier):
+# 	def __init__(self, data, state):
+# 		self.classifier = KNeighborsClassifier(n_neighbors=5)
+# 		self.classifier.fit(data, state)
 
-	def keySelector(self, speed, distance, obHeight):
-		label = self.classifier.predict([(speed, distance, obHeight)])
-		if label == 0:
-			return "K_DOWN"
-		elif label == 1:
-			return "K_UP"
-		return "K_NO"
+# 	def keySelector(self, speed, distance, obHeight):
+# 		label = self.classifier.predict([(speed, distance, obHeight)])
+# 		if label == 0:
+# 			return "K_DOWN"
+# 		elif label == 1:
+# 			return "K_UP"
+# 		return "K_NO"
 
-	def updateState(self, state):
-		self.state = state
+# 	def updateState(self, state):
+# 		self.state = state
 
 
 def playerKeySelector():
