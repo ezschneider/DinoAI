@@ -245,7 +245,7 @@ def playerKeySelector():
         return "K_NO"
 
 
-def playGame():
+def playGame(s):
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles
     # random.seed(3)
     run = True
@@ -302,6 +302,7 @@ def playGame():
         if GAME_MODE == "HUMAN_MODE":
             userInput = playerKeySelector()
         else:
+            aiPlayer = NeuralDinoClassifier(s, n_internalNeurons, n_decisionNeurons)
             userInput = aiPlayer.keySelector(game_speed, distance, obHeight)
 
         if len(obstacles) == 0 or obstacles[-1].getXY()[0] < spawn_dist:
@@ -390,10 +391,10 @@ from scipy import stats
 import numpy as np
 
 
-def manyPlaysResults(rounds):
+def manyPlaysResults(s, rounds):
     results = []
     for round in range(rounds):
-        results += [playGame()]
+        results += [playGame(s)]
     npResults = np.asarray(results)
     return (results, npResults.mean() - npResults.std())
 
@@ -461,7 +462,7 @@ class NeuralDinoClassifier(KeyClassifier):
 # ------------------------------------------------------------------------------------------------------- #
 def evaluate_state(rounds, state, n_internalNeurons, n_decisionNeurons):
     aiPlayer = NeuralDinoClassifier(state, n_internalNeurons, n_decisionNeurons)    
-    _, value = manyPlaysResults(rounds)
+    _, value = manyPlaysResults(state, rounds)
     # print("for state: ", state, "value: ", value)
     return value
 
@@ -653,8 +654,8 @@ def main():
     # best_state, best_value = gradient_ascent(initial_state, 5000) 
     # aiPlayer = KeySimplestClassifier(best_state)
     best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
-    aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
-    res, value = manyPlaysResults(rounds)
+    # aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
+    res, value = manyPlaysResults(best_state, rounds)
     # playGame()
     # npRes = np.asarray(res)
     # print(res, npRes.mean(), npRes.std(), value)
