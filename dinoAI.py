@@ -1,21 +1,16 @@
 import pygame
-from scipy import rand, stats
-import numpy as np
 import os
 import random
 import time
-import math
 from sys import exit
+import math
+random.seed ()
 
-pygame.init()
-
-# Valid values: HUMAN_MODE or AI_MODE
 GAME_MODE = "AI_MODE"
 
 # Global Constants
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
-SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
            pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
@@ -33,10 +28,6 @@ LARGE_CACTUS = [pygame.image.load(os.path.join("Assets/Cactus", "LargeCactus1.pn
 
 BIRD = [pygame.image.load(os.path.join("Assets/Bird", "Bird1.png")),
         pygame.image.load(os.path.join("Assets/Bird", "Bird2.png"))]
-
-CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
-
-BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
 
 
 class Dinosaur:
@@ -119,27 +110,10 @@ class Dinosaur:
             self.dino_rect.y = self.Y_POS
 
     def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.dino_rect.x, self.dino_rect.y))
+        pass
 
     def getXY(self):
         return (self.dino_rect.x, self.dino_rect.y)
-
-
-class Cloud:
-    def __init__(self):
-        self.x = SCREEN_WIDTH + random.randint(800, 1000)
-        self.y = random.randint(50, 100)
-        self.image = CLOUD
-        self.width = self.image.get_width()
-
-    def update(self):
-        self.x -= game_speed
-        if self.x < -self.width:
-            self.x = SCREEN_WIDTH + random.randint(2500, 3000)
-            self.y = random.randint(50, 100)
-
-    def draw(self, SCREEN):
-        SCREEN.blit(self.image, (self.x, self.y))
 
 
 class Obstacle():
@@ -157,7 +131,7 @@ class Obstacle():
             obstacles.pop(0)
 
     def draw(self, SCREEN):
-        SCREEN.blit(self.image[self.type], self.rect)
+        pass
 
     def getXY(self):
         return (self.rect.x, self.rect.y)
@@ -198,14 +172,14 @@ class Bird(Obstacle):
         self.index = 0
 
     def draw(self, SCREEN):
-        if self.index >= 19:
-            self.index = 0
-        SCREEN.blit(self.image[self.index // 10], self.rect)
-        self.index += 1
+        pass
 
+
+def first(x):
+    return x[0]
 
 class KeyClassifier:
-    def __init__(self, state):        
+    def __init__(self, state):
         pass
 
     def keySelector(self, distance, obHeight, speed, obType):
@@ -213,10 +187,6 @@ class KeyClassifier:
 
     def updateState(self, state):
         pass
-
-
-def first(x):
-    return x[0]
 
 class KeySimplestClassifier(KeyClassifier):
     def __init__(self, state):
@@ -239,78 +209,6 @@ class KeySimplestClassifier(KeyClassifier):
         self.state = state
 
 
-# ------------------------------------------------------------------------------------------------------- #
-# Neural Network Classifier
-# ------------------------------------------------------------------------------------------------------- #
-
-# Internal Neuron
-class InterNeuron():
-    def __init__(self, weights):
-        self.distWeight = weights[0]
-        self.hWeight = weights[1]
-        self.speedWeight = weights[2]
-        self.bias = weights[3]
-
-    def decision(self, distance, obHeight, speed):
-        sum = self.distWeight*distance + self.hWeight*obHeight + self.speedWeight*speed + self.bias
-        if sum >= 0:
-            return sum
-        else:
-            return 0
-
-# External Neuron - Neuron that decides
-class DecisionNeuron():
-    def __init__(self, weights):
-        self.weight0 = weights[0]
-        self.weight1 = weights[1]
-        self.weight2 = weights[2]
-        self.bias = weights[3]
-    
-    def decision(self, sumNeurons):
-        sum = self.weight0*sumNeurons[0] + self.weight1*sumNeurons[1] + self.weight2*sumNeurons[2] + self.bias
-        if sum >= 0:
-            return sum
-        else:
-            return 0
-
-# Class of Classification
-class NeuralDinoClassifier(KeyClassifier):
-    def __init__(self, state):
-        self.state = state
-        self.interNeurons = []
-        self.decisionNeuron = []
-
-    def keySelector(self, distance, obHeight, speed):
-        for i in range(3):
-            self.interNeurons.append(InterNeuron(self.state[i]))
-        for i in range(2):
-            self.decisionNeuron.append(DecisionNeuron(self.state[i+3]))
-
-        sumNeurons = []
-        for i in range(3):
-            sumNeurons.append(self.interNeurons[i].decision(distance, obHeight, speed))
-        
-        decision = []
-        for i in range(2):
-            decision.append(self.decisionNeuron[i].decision(sumNeurons))
-
-        if decision[0] > decision[1]:
-            return "K_UP"
-        elif decision[0] < decision[1]:
-            return "K_DOWN"
-        else:
-            return "K_NO"
-        
-    def updateState(self, state):
-        self.state = state
-
-# ------------------------------------------------------------------------------------------------------- #
-# Genetic Algorithm
-# ------------------------------------------------------------------------------------------------------- #
-
-
-# ------------------------------------------------------------------------------------------------------- #
-
 def playerKeySelector():
     userInputArray = pygame.key.get_pressed()
 
@@ -322,20 +220,16 @@ def playerKeySelector():
         return "K_NO"
 
 
-def playGame():
+def playGame(aiPlayer, seed):
     global game_speed, x_pos_bg, y_pos_bg, points, obstacles
+
     run = True
     clock = pygame.time.Clock()
-    players = []
-    for i, val in enumerate(aiPlayers):        
-        players.append((Dinosaur(),i))
-    cloud = Cloud()
+    player = Dinosaur()
     game_speed = 10
     x_pos_bg = 0
     y_pos_bg = 383
     points = 0
-    results = []
-    font = pygame.font.Font('freesansbold.ttf', 20)
     obstacles = []
     death_count = 0
     spawn_dist = 0
@@ -346,28 +240,8 @@ def playGame():
         if points % 100 == 0:
             game_speed += 1
 
-        text = font.render("Points: " + str(int(points)), True, (0, 0, 0))
-        textRect = text.get_rect()
-        textRect.center = (1000, 40)
-        SCREEN.blit(text, textRect)
-
-    def background():
-        global x_pos_bg, y_pos_bg
-        image_width = BG.get_width()
-        SCREEN.blit(BG, (x_pos_bg, y_pos_bg))
-        SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
-        if x_pos_bg <= -image_width:
-            SCREEN.blit(BG, (image_width + x_pos_bg, y_pos_bg))
-            x_pos_bg = 0
-        x_pos_bg -= game_speed
 
     while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                exit()
-
-        SCREEN.fill((255, 255, 255))
 
         distance = 1500
         obHeight = 0
@@ -378,12 +252,13 @@ def playGame():
             obHeight = obstacles[0].getHeight()
             obType = obstacles[0]
 
-        userInput = []
-        # if GAME_MODE == "HUMAN_MODE":
-        #     userInput[0] = playerKeySelector()
-        # else:
-        for i, val in enumerate(players):
-            userInput.append(aiPlayers[i].keySelector(distance, obHeight, game_speed, obType))
+        if GAME_MODE == "HUMAN_MODE":
+            userInput = playerKeySelector()
+        else:
+            # userInput = aiPlayer.keySelector(game_speed, player, obType)
+            # userInput = aiPlayer.keySelector(game_speed, obstacles, player)
+            userInput = aiPlayer.keySelector(distance, obHeight, game_speed, obType)
+            
 
         if len(obstacles) == 0 or obstacles[-1].getXY()[0] < spawn_dist:
             spawn_dist = random.randint(0, 670)
@@ -394,33 +269,17 @@ def playGame():
             elif random.randint(0, 5) == 5:
                 obstacles.append(Bird(BIRD))
 
-        for i, player in enumerate(players):
-            player[0].update(userInput[i])
-            player[0].draw(SCREEN)
+        player.update(userInput)
 
         for obstacle in list(obstacles):
             obstacle.update()
-            obstacle.draw(SCREEN)
-
-        background()
-
-        cloud.draw(SCREEN)
-        cloud.update()
 
         score()
 
-        clock.tick(60)
-        pygame.display.update()
-
         for obstacle in obstacles:
-            for i, player in enumerate(players):
-                if player[0].dino_rect.colliderect(obstacle.rect):
-                    results.append((points, player[1]))
-                    if len(players) == 1:
-                        pygame.time.delay(2000)
-                        death_count += 1
-                        return sorted(results, key=lambda x: x[1])
-                    players.remove(player)
+            if player.dino_rect.colliderect(obstacle.rect):
+                death_count += 1
+                return points
 
 
 # Change State Operator
@@ -439,12 +298,12 @@ def change_state(state, position, vs, vd):
 
 def generate_neighborhood(state):
     neighborhood = []
-    state_size = len(state)    
+    state_size = len(state)
     for i in range(state_size):
         ds = random.randint(1, 10) 
         dd = random.randint(1, 100) 
-        new_states=[change_state(state, i, ds, 0), change_state(state, i, (-ds), 0), change_state(state, i, 0, dd),
-                    change_state(state, i, 0, (-dd))]
+        new_states = [change_state(state, i, ds, 0), change_state(state, i, (-ds), 0), change_state(state, i, 0, dd),
+                      change_state(state, i, 0, (-dd))]
         for s in new_states:
             if s != []:
                 neighborhood.append(s)
@@ -455,69 +314,304 @@ def generate_neighborhood(state):
 
 def gradient_ascent(state, max_time):
     start = time.process_time()
-    max_value, _ = manyPlaysResults(3)
+    res, max_value = manyPlaysResults(KeySimplestClassifier(state), 3)
     better = True
     end = 0
     while better and end - start <= max_time:
         neighborhood = generate_neighborhood(state)
         better = False
-        global aiPlayers
-        aiPlayers = []
-        for s in neighborhood:            
-            aiPlayers.append(NeuralDinoClassifier(s))        
-        # print(aiPlayers)        
-        value, index = manyPlaysResults(3)
-        if value > max_value:
-            print("New max value: " + str(value))            
-            state = neighborhood[index]
-            print("New state: " + str(state))
-            max_value = value
-            better = True
+        for s in neighborhood:
+            aiPlayer = KeySimplestClassifier(s)
+            res, value = manyPlaysResults(aiPlayer, 3)
+            if value > max_value:
+                state = s
+                max_value = value
+                better = True
         end = time.process_time()
     return state, max_value
 
 
-def manyPlaysResults(rounds):
+from multiprocessing import Pool
+from scipy import stats
+import pandas as pd
+import numpy as np
+import shutil
+import glob
+
+
+def manyPlaysResults(aiPlayer, rounds):
     results = []
-    for round in range(rounds):
-        results += [playGame()]
-    scores = []
-    for i, result in enumerate(results):
-        for j, val in enumerate(result):
-            if i == 0:
-                scores.append([val[0]])
-            else:
-                scores[j].append(val[0])
+    with Pool (os.cpu_count ()-2) as p:
+        results = p.starmap (playGame, zip ([aiPlayer]*rounds, range (rounds)))
     npResults = np.asarray(results)
-    scores = np.asarray(scores)
-    scores = [x.mean() - x.std() for x in scores]
-    return (max(scores), scores.index(max(scores)))
+    return_value = npResults.mean()
+    if npResults.shape[0]>1:
+        return_value -= npResults.std()
+    return (results, return_value)
 
-def creatInitial_state(x, y):
-                    # State of Internal Neurons
-    initial_state = [[rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
-                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
-                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
-                    # State of Decision Neurons
-                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],
-                    [rand(x, y), rand(x, y), rand(x, y), rand(x, y)],]
-    return initial_state
+# ------------------------------------------------------------------------------------------------------- #
+# Neural Network Classifier
+# ------------------------------------------------------------------------------------------------------- #
 
-def main():
+class Neuron():
+    def __init__(self, weights):
+        self.weights = weights
+    
+    def decision(self, params):
+        sum = 0
+        for i in range(len(params)):
+            sum = sum + self.weights[i]*params[i]
+        sum = sum + self.weights[-1]
+        return max(0, sum)
+
+# Class of Classification
+class NeuralDinoClassifier(KeyClassifier):
+    def __init__(self, state, n_internalNeurons, n_decisionNeurons):
+        self.state = state
+        self.n_internalNeurons = n_internalNeurons
+        self.n_decisionNeurons = n_decisionNeurons
+        self.interNeurons = []
+        self.decisionNeuron = []
+
+    def keySelector(self, distance, obHeight, speed, obType):
+        params = np.array([distance, obHeight, speed])
+        n_p = len(params)+1
+        
+        i = 0
+        while(i < self.n_internalNeurons):
+            n = i * n_p
+            p_n = (i + 1) * n_p
+            self.interNeurons.append(Neuron(self.state[n:p_n]))
+            i=i+1
+        i = self.n_internalNeurons
+        while(i<self.n_internalNeurons+self.n_decisionNeurons):
+            n = i * n_p
+            p_n = (i + 1) * n_p
+            self.decisionNeuron.append(Neuron(self.state[n:p_n]))
+            i=i+1
+
+        sumNeurons = []
+        for i in range(self.n_internalNeurons):
+            sumNeurons.append(self.interNeurons[i].decision(params))
+        
+        decision = []
+        for i in range(self.n_decisionNeurons):
+            decision.append(self.decisionNeuron[i].decision(sumNeurons))
+
+        if decision[0] > decision[1]:
+            return "K_UP"
+        elif decision[0] < decision[1]:
+            return "K_DOWN"
+        else:
+            return "K_NO"
+        
+    def updateState(self, state):
+        self.state = state
+
+# ------------------------------------------------------------------------------------------------------- #
+# Genetic Algorithm
+# ------------------------------------------------------------------------------------------------------- #
+def evaluate_state(rounds, state, n_internalNeurons, n_decisionNeurons):
+    aiPlayer = NeuralDinoClassifier(state, n_internalNeurons, n_decisionNeurons)    
+    _, value = manyPlaysResults(aiPlayer, rounds)
+    # print("for state: ", state, "value: ", value)
+    return value
+
+def states_total_value(states):
+    total_sum = 0
+    for state in states:
+        total_sum = total_sum + state[0]
+    return total_sum
+
+def roulette_construction(states):
+    aux_states = []
+    roulette = []
+    total_value = states_total_value(states)
+
+    for state in states:
+        value = state[0]
+        if total_value != 0:
+            ratio = value/total_value
+        else:
+            ratio = 1
+        aux_states.append((ratio,state[1]))
+
+    acc_value = 0
+    for state in aux_states:
+        acc_value = acc_value + state[0]
+        s = (acc_value,state[1])
+        roulette.append(s)
+    return roulette
+
+def roulette_run (rounds, roulette):
+    if roulette == []:
+        return []
+    selected = []
+    while len(selected) < rounds:
+        r = random.uniform(0,1)
+        for state in roulette:
+            if r <= state[0]:
+                selected.append(state[1])
+                break
+    return selected
+
+def generate_initial_state(n_internalNeurons, n_decisionNeurons, params):
+    initial_state = []
+    min_value = -1000
+    max_value = 1000
+    for _ in range(params * (n_decisionNeurons+n_internalNeurons)):
+        initial_state.append(random.randint(min_value,max_value))
+    np_initial_state = np.asarray(initial_state)
+    return np_initial_state
+
+def selection(value_population,n):
+    aux_population = roulette_construction(value_population)
+    new_population = roulette_run(n, aux_population)
+    return new_population
+
+def crossover(dad,mom):
+    r = random.randint(0, len(dad) - 1)
+    son = np.concatenate([dad[:r],mom[r:]])
+    daug = np.concatenate([mom[:r],dad[r:]])
+    return son, daug
+
+def mutation (indiv):
+    min_size = -1000
+    max_size = 1000
+    individual = indiv.copy()
+    n_weights_mutad = 3
+    for _ in range(n_weights_mutad):
+        rand = random.randint(0, len(individual) - 1)
+        individual[rand] = random.randint(min_size,max_size)
+    return individual
+
+def initial_population(n, params, n_internalNeurons, n_decisionNeurons):
+    pop = []
+    count = 0
+    while count < n:
+        individual = generate_initial_state(n_internalNeurons, n_decisionNeurons, params)
+        pop = pop + [individual]
+        count += 1
+    np_pop = np.asarray(pop)
+    return np_pop
+
+def convergent(population):
+    if population != []:
+        base = population[0]
+        i = 0
+        while i < len(population):
+            if (base != population[i]).all():
+                return False
+            i += 1
+        return True
+
+def evaluate_population (rounds, pop, n_internalNeurons, n_decisionNeurons):
+    eval = []
+    for s in pop:
+        eval = eval + [(evaluate_state(rounds, s, n_internalNeurons, n_decisionNeurons), s)]
+    return eval
+
+def elitism (val_pop, pct):
+    n = math.floor((pct/100)*len(val_pop))
+    if n < 1:
+        n = 1
+    val_elite = sorted (val_pop, key = first, reverse = True)[:n]
+    elite = [s for v,s in val_elite]
+    return elite
+
+def crossover_step (population, crossover_ratio):
+    new_pop = []
+    
+    for _ in range (round(len(population)/2)):
+        rand = random.uniform(0, 1)
+        fst_ind = random.randint(0, len(population) - 1)
+        scd_ind = random.randint(0, len(population) - 1)
+        parent1 = population[fst_ind] 
+        parent2 = population[scd_ind]
+
+        if rand <= crossover_ratio:
+            offspring1, offspring2 = crossover(parent1, parent2)            
+            offspring1 = parent1
+            offspring2 = parent2
+        else:
+            offspring1, offspring2 = parent1, parent2
+                
+        new_pop = new_pop + [offspring1, offspring2]
+        
+    return new_pop
+
+def mutation_step (population, mutation_ratio):
+    ind = 0
+    for individual in population:
+        rand = random.uniform(0, 1)
+
+        if rand <= mutation_ratio:
+            mutated = mutation(individual)
+            population[ind] = mutated
+                
+        ind+=1
+        
+    return population
+
+def genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons):
+# mut_ratio, max_time, elite_pct
     global aiPlayers
     aiPlayers = []
+    start = time.time()
+    opt_state = [0] * params
+    opt_value = 0
+    pop = initial_population(pop_size, params, n_internalNeurons, n_decisionNeurons)
+    conv = convergent(pop)
+    iter = 0
+    end = 0
+
+    while not conv and iter < max_iter and end-start <= max_time:
+        
+        val_pop = evaluate_population (rounds, pop, n_internalNeurons, n_decisionNeurons)
+        new_pop = elitism (val_pop, elite_pct)
+        best = new_pop[0]
+        val_best = evaluate_state(rounds, best, n_internalNeurons, n_decisionNeurons)
+
+        if (val_best > opt_value):
+            opt_state = best
+            opt_value = val_best
+
+        selected = selection(val_pop, pop_size - len(new_pop)) 
+        crossed = crossover_step(selected, cross_ratio)
+        mutated = mutation_step(crossed, mut_ratio)
+        pop = new_pop + mutated
+        conv = convergent(pop)
+        iter+=1
+        end = time.time()
+        print(opt_value)
+
+
+    return opt_state, opt_value, iter, conv
+
+def main():
     # initial_state = [(15, 250), (18, 350), (20, 450), (1000, 550)]
-    for _ in range(10):
-        initial_state = creatInitial_state(-1000,1000)
-        aiPlayers.append(NeuralDinoClassifier(initial_state))
-    best_state, best_value = manyPlaysResults(3)
-    print("Best state: " + str(best_state))
-    print("Best value: " + str(best_value))
-    aiPlayers = []
-    aiPlayers.append(KeySimplestClassifier(best_state))
-    res, value = manyPlaysResults(3)
+    # aiPlayer = KeySimplestClassifier(initial_state)
+    # best_state, best_value = gradient_ascent(initial_state, 5000) 
+    # aiPlayer = KeySimplestClassifier(best_state)
+    # res, value = manyPlaysResults(aiPlayer, 30)
+    # npRes = np.asarray(res)
+    # print(res, npRes.mean(), npRes.std(), value)
+    params = 4
+    rounds = 5
+    pop_size = 200
+    max_iter = 1000
+    cross_ratio = 0.7
+    mut_ratio = 0.15
+    elite_pct = 10
+    max_time = 1000
+    n_internalNeurons = 3
+    n_decisionNeurons = 2
+    best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
+    aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
+    res, value = manyPlaysResults(aiPlayer, rounds)
     npRes = np.asarray(res)
     print(res, npRes.mean(), npRes.std(), value)
 
 
-main()
+if __name__ == '__main__':
+    main()
