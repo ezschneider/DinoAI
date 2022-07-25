@@ -638,7 +638,7 @@ def genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time
     return opt_state, opt_value, iter, conv
 
 def main():
-    global aiPlayer
+    # global aiPlayer
     random.seed(3)
     params = 4
     rounds = 5
@@ -648,6 +648,8 @@ def main():
     mut_ratio = 0.15
     elite_pct = 10
     max_time = 1000
+    global n_internalNeurons
+    global n_decisionNeurons
     n_internalNeurons = 3
     n_decisionNeurons = 2
     # aiPlayer = KNNClassifier(items, initial_state)
