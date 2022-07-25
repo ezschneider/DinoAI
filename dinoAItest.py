@@ -289,7 +289,6 @@ def playGame(s):
                 exit()
 
         SCREEN.fill((255, 255, 255))
-        print(game_speed)
         distance = 1500
         obHeight = 0
         obType = 2
