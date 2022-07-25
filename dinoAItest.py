@@ -461,7 +461,7 @@ class NeuralDinoClassifier(KeyClassifier):
 # ------------------------------------------------------------------------------------------------------- #
 def evaluate_state(rounds, state, n_internalNeurons, n_decisionNeurons):
     aiPlayer = NeuralDinoClassifier(state, n_internalNeurons, n_decisionNeurons)    
-    _, value = manyPlaysResults(aiPlayer, rounds)
+    _, value = manyPlaysResults(rounds)
     # print("for state: ", state, "value: ", value)
     return value
 
