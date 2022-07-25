@@ -463,7 +463,7 @@ def generate_initial_state(n_internalNeurons, n_decisionNeurons, params):
         initial_state.append(random.randint(min_value,max_value))
     np_initial_state = np.asarray(initial_state)
     np_best_state = [464,569,567,831,56,1,-539,-767,-152,506,49,-139,9,-168,-715,-965,-88,683,136,162]
-    return np_initial_state
+    return np_best_state
 
 def selection(value_population,n):
     aux_population = roulette_construction(value_population)
