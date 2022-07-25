@@ -462,7 +462,7 @@ def generate_initial_state(n_internalNeurons, n_decisionNeurons, params):
     for _ in range(params * (n_decisionNeurons+n_internalNeurons)):
         initial_state.append(random.randint(min_value,max_value))
     np_initial_state = np.asarray(initial_state)
-    np_best_state = [464,569,567,893,56,1,-539,-767,-152,506,49,-675,9,-168,-715,-965,-88,683,-928,162]
+    np_best_state = [464,569,567,831,56,1,-539,-767,-152,506,49,-139,9,-168,-715,-965,-88,683,136,162]
     return np_initial_state
 
 def selection(value_population,n):
