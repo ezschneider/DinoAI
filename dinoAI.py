@@ -496,7 +496,7 @@ def initial_population(n, params, n_internalNeurons, n_decisionNeurons):
     return np_pop
 
 def convergent(population):
-    if population != []:
+    if np.array_equal(population, []):
         base = population[0]
         i = 0
         while i < len(population):
