@@ -216,7 +216,25 @@ class KeyClassifier:
 def first(x):
     return x[0]
 
+class KeySimplestClassifier(KeyClassifier):
+    def __init__(self, state):
+        self.state = state
 
+    def keySelector(self, distance, obHeight, speed, obType):
+        self.state = sorted(self.state, key=first)
+        for s, d in self.state:
+            if speed < s:
+                limDist = d
+                break
+        if distance <= limDist:
+            if isinstance(obType, Bird) and obHeight > 50:
+                return "K_DOWN"
+            else:
+                return "K_UP"
+        return "K_NO"
+
+    def updateState(self, state):
+        self.state = state
 # class KNNClassifier(KeyClassifier):
 # 	def __init__(self, data, state):
 # 		self.classifier = KNeighborsClassifier(n_neighbors=5)
@@ -301,7 +319,7 @@ def playGame(s):
         if GAME_MODE == "HUMAN_MODE":
             userInput = playerKeySelector()
         else:
-            aiPlayer = NeuralDinoClassifier(s, n_internalNeurons, n_decisionNeurons)
+            aiPlayer = KeySimplestClassifier(s)
             userInput = aiPlayer.keySelector(distance, obHeight, game_speed, obType)
 
         if len(obstacles) == 0 or obstacles[-1].getXY()[0] < spawn_dist:
@@ -652,12 +670,12 @@ def main():
     global n_decisionNeurons
     n_internalNeurons = 3
     n_decisionNeurons = 2
-    # aiPlayer = KNNClassifier(items, initial_state)
+    # aiPlayer = KeySimplestClassifier(items, initial_state)
     # best_state, best_value = gradient_ascent(initial_state, 5000) 
-    # aiPlayer = KeySimplestClassifier(best_state)
-    best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
+    # # aiPlayer = KeySimplestClassifier(best_state)
+    # best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
     # aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
-    res, value = manyPlaysResults(best_state, rounds)
+    # # res, value = manyPlaysResults(best_state, rounds)
     # playGame()
     # npRes = np.asarray(res)
     # print(res, npRes.mean(), npRes.std(), value)

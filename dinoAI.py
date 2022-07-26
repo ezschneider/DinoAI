@@ -347,6 +347,7 @@ def manyPlaysResults(aiPlayer, rounds):
     return_value = npResults.mean()
     if npResults.shape[0]>1:
         return_value -= npResults.std()
+    print(return_value)
     return (results, return_value)
 
 # ------------------------------------------------------------------------------------------------------- #
@@ -527,7 +528,7 @@ def crossover_step (population, crossover_ratio):
         rand = random.uniform(0, 1)
         fst_ind = random.randint(0, len(population) - 1)
         scd_ind = random.randint(0, len(population) - 1)
-        parent1 = population[fst_ind] 
+        parent1 = population[fst_ind]
         parent2 = population[scd_ind]
 
         if rand <= crossover_ratio:
@@ -590,29 +591,33 @@ def genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time
     return opt_state, opt_value, iter, conv
 
 def main():
-    # initial_state = [(15, 250), (18, 350), (20, 450), (1000, 550)]
-    # aiPlayer = KeySimplestClassifier(initial_state)
-    # best_state, best_value = gradient_ascent(initial_state, 5000) 
-    # aiPlayer = KeySimplestClassifier(best_state)
-    # res, value = manyPlaysResults(aiPlayer, 30)
-    # npRes = np.asarray(res)
-    # print(res, npRes.mean(), npRes.std(), value)
-    params = 4
-    rounds = 5
-    pop_size = 200
-    max_iter = 1000
-    cross_ratio = 0.7
-    mut_ratio = 0.15
-    elite_pct = 10
-    max_time = 1000
-    n_internalNeurons = 3
-    n_decisionNeurons = 2
-    best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
-    aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
-    res, value = manyPlaysResults(aiPlayer, rounds)
+    initial_state = [(15, 250), (18, 350), (20, 450), (1000, 550)]
+    aiPlayer = KeySimplestClassifier(initial_state)
+    best_state, best_value = gradient_ascent(initial_state, 5000) 
+    # best_state = [(15, 250), (18, 350), (20, 450), (1000, 550)]
+    aiPlayer = KeySimplestClassifier(best_state)
+    res, value = manyPlaysResults(aiPlayer, 30)
     npRes = np.asarray(res)
     print(best_state)
-    print(res, npRes.mean(), npRes.std(), value)
+    # print(res, npRes.mean(), npRes.std(), value)
+
+    # params = 4
+    # rounds = 5
+    # pop_size = 200
+    # max_iter = 1000
+    # cross_ratio = 0.7
+    # mut_ratio = 0.15
+    # elite_pct = 10
+    # max_time = 1000
+    # n_internalNeurons = 3
+    # n_decisionNeurons = 2
+    # best_state, best_value, iterations, conv = genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time, elite_pct, n_internalNeurons, n_decisionNeurons)
+    # best_state = [464,569,567,574,56,15,-539,-767,-186,506,268,-464,9,-168,-715,-965,-88,456,136,162]
+    # aiPlayer = NeuralDinoClassifier(best_state, n_internalNeurons, n_decisionNeurons)
+    # res, value = manyPlaysResults(aiPlayer, rounds)
+    # npRes = np.asarray(res)
+    # print(best_state)
+    # print(res, npRes.mean(), npRes.std(), value)
 
 
 if __name__ == '__main__':
