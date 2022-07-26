@@ -347,7 +347,7 @@ def manyPlaysResults(aiPlayer, rounds):
     return_value = npResults.mean()
     if npResults.shape[0]>1:
         return_value -= npResults.std()
-    print(return_value)
+    # print(return_value)
     return (results, return_value)
 
 # ------------------------------------------------------------------------------------------------------- #
@@ -595,14 +595,14 @@ def teste_classifiers():
     aiPlayerKS = KeySimplestClassifier(state_keysimplest)
     print("keySimple:")
     for _ in range(30):
-        resKS, value = manyPlaysResults(aiPlayerKS, 30)
-        print(resKS)
+        resKS, valueKS = manyPlaysResults(aiPlayerKS, 30)
+        print(valueKS)
     state_neural = [464,569,567,574,56,15,-539,-767,-186,506,268,-464,9,-168,-715,-965,-88,456,136,162]
     aiPlayerKS = NeuralDinoClassifier(state_neural, 3, 2)
     print("neural:")
     for _ in range(30):
-        resKS, value = manyPlaysResults(aiPlayerKS, 30)
-        print(resKS)
+        resKS, valueN = manyPlaysResults(aiPlayerKS, 30)
+        print(valueN)
 
 def main():
     teste_classifiers()
