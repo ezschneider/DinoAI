@@ -655,6 +655,7 @@ def genetic(params, rounds, pop_size, max_iter, cross_ratio, mut_ratio, max_time
 
     return opt_state, opt_value, iter, conv
 
+
 def main():
     # global aiPlayer
     random.seed(3)
