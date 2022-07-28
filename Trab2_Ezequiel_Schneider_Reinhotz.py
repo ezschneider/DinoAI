@@ -270,7 +270,7 @@ def playGame(s):
         if GAME_MODE == "HUMAN_MODE":
             userInput = playerKeySelector()
         else:
-            aiPlayer = NeuralDinoClassifier(s)
+            aiPlayer = NeuralDinoClassifier(s, n_internalNeurons, n_decisionNeurons)
             userInput = aiPlayer.keySelector(distance, obHeight, game_speed, obType)
 
         if len(obstacles) == 0 or obstacles[-1].getXY()[0] < spawn_dist:
